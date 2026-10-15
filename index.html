@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Razor Cloud — Sign In</title>
+  <link rel="icon" href="assets/images/logo.png">
+  <link rel="stylesheet" href="assets/css/fonts.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
+  <link rel="stylesheet" href="assets/css/datepicker.css">
+</head>
+<body>
+
+<!-- Language Switcher Bar -->
+<div class="login-lang-bar">
+  <button class="lang-switch" id="loginLangBtn" onclick="window.i18n.toggleCulture()">
+    <span id="loginLangIc"></span> <span id="loginLangText">فارسی (FA)</span>
+  </button>
+</div>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginView">
+  <div class="login-art">
+    <img src="assets/images/login-hero.png" alt="Razor Cloud Hero">
+    <div class="ov"></div>
+    <div class="login-brand">
+      <img src="assets/images/logo.png" alt="Razor Logo">
+      <div class="nm">RAZOR<span style="color:var(--mut2);font-weight:400"> Cloud</span></div>
+    </div>
+    <div class="hero-txt">
+      <h1 id="heroTxtH1">The control plane for institutional algorithmic trading.</h1>
+      <p id="heroTxtP">Command, schedule, monitor and report on every headless Razor Engine from a single encrypted dashboard. Cloud is the source of truth — your engines simply execute.</p>
+      <div class="pills">
+        <span id="pill1">End-to-end encrypted WSS</span>
+        <span id="pill2">60+ remote commands</span>
+        <span id="pill3">Live-first scheduling</span>
+        <span id="pill4">Extension marketplace</span>
+      </div>
+    </div>
+  </div>
+  <div class="login-form-wrap">
+    <div class="login-card">
+      <h2 id="loginTitle">Sign in to Razor Cloud</h2>
+      <div class="sub" id="loginSub">Authenticate to manage your engine instances.</div>
+      <div class="role-cards">
+        <div class="role-card sel" data-role="trader" onclick="RZ.pickRole('trader')">
+          <div class="ic" id="rc-trader"></div>
+          <div class="t" id="rc-trader-t">Trader</div><div class="d" id="rc-trader-d">Production</div>
+        </div>
+        <div class="role-card" data-role="developer" onclick="RZ.pickRole('developer')">
+          <div class="ic" id="rc-developer"></div>
+          <div class="t" id="rc-dev-t">Developer</div><div class="d" id="rc-dev-d">Free tier</div>
+        </div>
+        <div class="role-card" data-role="admin" onclick="RZ.pickRole('admin')">
+          <div class="ic" id="rc-admin"></div>
+          <div class="t" id="rc-admin-t">Admin</div><div class="d" id="rc-admin-d">Razor Co.</div>
+        </div>
+      </div>
+      <form onsubmit="RZ.doLogin(event)">
+        <div class="field">
+          <label id="lblEmail">Cloud Username / Email</label>
+          <input id="li-email" autocomplete="username" value="trader@razor.io">
+        </div>
+        <div class="field">
+          <label id="lblPass">Password</label>
+          <input id="li-pass" type="password" autocomplete="current-password" value="demo123">
+        </div>
+        <div class="login-err" id="li-err"></div>
+        <button class="btn primary" type="submit" style="justify-content:center" id="btnSubmit">
+          <span id="li-ic"></span> <span id="btnSubmitTxt">Connect &amp; Authenticate</span>
+        </button>
+      </form>
+      <div class="demo-hint">
+        <div class="h" id="dh-h"></div>
+        <div class="row" onclick="RZ.fillCreds('trader@razor.io','demo123','trader')"><span><b>trader@razor.io</b> / demo123</span><span>Professional</span></div>
+        <div class="row" onclick="RZ.fillCreds('dev@razor.io','demo123','developer')"><span><b>dev@razor.io</b> / demo123</span><span>Free Dev</span></div>
+        <div class="row" onclick="RZ.fillCreds('admin@razor.io','demo123','admin')"><span><b>admin@razor.io</b> / demo123</span><span>Staff</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<!-- Scripts -->
+<script src="assets/js/core/icons.js"></script>
+<script src="assets/js/core/jalali.js"></script>
+<script src="assets/js/core/datepicker.js"></script>
+<script src="assets/js/i18n/en.js"></script>
+<script src="assets/js/i18n/fa.js"></script>
+<script src="assets/js/i18n/i18n.js"></script>
+<script src="assets/js/core/db.js"></script>
+<script src="assets/js/core/charts.js"></script>
+<script src="assets/js/core/ws-console.js"></script>
+<script src="assets/js/app.js"></script>
+
+<script>
+  function updateLoginTranslations() {
+    const isFa = window.i18n && window.i18n.currentCulture === 'fa-IR';
+    const t = window.t;
+
+    document.getElementById('loginLangText').textContent = isFa ? 'English (US)' : 'فارسی (FA)';
+    document.getElementById('loginLangIc').innerHTML = window.ic('globe');
+
+    document.getElementById('heroTxtH1').textContent = t('loginHeroTitle');
+    document.getElementById('heroTxtP').textContent = t('loginHeroDesc');
+    document.getElementById('pill1').textContent = t('pillEncrypted');
+    document.getElementById('pill2').textContent = t('pillCommands');
+    document.getElementById('pill3').textContent = t('pillScheduling');
+    document.getElementById('pill4').textContent = t('pillMarketplace');
+
+    document.getElementById('loginTitle').textContent = t('signInTitle');
+    document.getElementById('loginSub').textContent = t('signInSubtitle');
+    document.getElementById('rc-trader-t').textContent = t('roleTrader');
+    document.getElementById('rc-trader-d').textContent = t('roleTraderDesc');
+    document.getElementById('rc-dev-t').textContent = t('roleDeveloper');
+    document.getElementById('rc-dev-d').textContent = t('roleDeveloperDesc');
+    document.getElementById('rc-admin-t').textContent = t('roleAdmin');
+    document.getElementById('rc-admin-d').textContent = t('roleAdminDesc');
+
+    document.getElementById('lblEmail').textContent = t('emailLabel');
+    document.getElementById('lblPass').textContent = t('passwordLabel');
+    document.getElementById('btnSubmitTxt').textContent = t('signInButton');
+    document.getElementById('dh-h').innerHTML = window.ic('info') + ' ' + t('demoHintTitle');
+  }
+
+  window.addEventListener('cultureChanged', updateLoginTranslations);
+  document.addEventListener('DOMContentLoaded', () => {
+    updateLoginTranslations();
+  });
+</script>
+</body>
+</html>

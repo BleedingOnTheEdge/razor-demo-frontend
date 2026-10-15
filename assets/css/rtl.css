@@ -1,0 +1,231 @@
+/* ============================================================
+   RAZOR CLOUD — RTL Stylesheet for Farsi (fa-IR)
+   Apple Design System · Clean Typography · Mirrored Geometry
+   ============================================================ */
+html[dir="rtl"], body.rtl {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, var(--sans);
+}
+
+html[dir="rtl"] .mono,
+body.rtl .mono,
+html[dir="rtl"] code,
+body.rtl code,
+html[dir="rtl"] pre,
+body.rtl pre {
+  font-family: var(--mono);
+  direction: ltr;
+  display: inline-block;
+  unicode-bidi: embed;
+}
+
+/* App Shell Inversion */
+html[dir="rtl"] #appView,
+body.rtl #appView {
+  grid-template-columns: 1fr 248px;
+}
+
+html[dir="rtl"] .sidebar,
+body.rtl .sidebar {
+  order: 2;
+  border-right: none;
+  border-left: 1px solid var(--line);
+}
+
+html[dir="rtl"] .main,
+body.rtl .main {
+  order: 1;
+}
+
+/* Sidebar Nav active pill */
+html[dir="rtl"] .nav-item.active,
+body.rtl .nav-item.active {
+  background: rgba(0, 113, 227, 0.09);
+}
+
+html[dir="rtl"] .nav-item.active::before,
+body.rtl .nav-item.active::before {
+  margin-left: 8px;
+  margin-right: -11px;
+}
+
+html[dir="rtl"] .nav-item .lock,
+body.rtl .nav-item .lock {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Topbar */
+html[dir="rtl"] .topbar,
+body.rtl .topbar {
+  flex-direction: row;
+}
+
+html[dir="rtl"] .tb-search kbd,
+body.rtl .tb-search kbd {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .tb-ic .badge-dot,
+body.rtl .tb-ic .badge-dot {
+  right: auto;
+  left: 5px;
+}
+
+/* Notifications & User Menu positioning */
+html[dir="rtl"] .notif-panel,
+body.rtl .notif-panel {
+  right: auto;
+  left: 66px;
+}
+
+html[dir="rtl"] .user-menu,
+body.rtl .user-menu {
+  right: auto;
+  left: 18px;
+}
+
+/* Console Drawer */
+html[dir="rtl"] .console,
+body.rtl .console {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid var(--line);
+  transform: translateX(-100%);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.08);
+}
+
+html[dir="rtl"] .console.open,
+body.rtl .console.open {
+  transform: none;
+}
+
+html[dir="rtl"] .ws-line,
+body.rtl .ws-line {
+  border-left: 1px solid var(--line);
+  border-right: 3px solid var(--line2);
+  text-align: left;
+  direction: ltr;
+}
+
+/* Toast Notifications */
+html[dir="rtl"] #toastRoot,
+body.rtl #toastRoot {
+  right: auto;
+  left: 20px;
+}
+
+html[dir="rtl"] .toast,
+body.rtl .toast {
+  animation: slidein-rtl 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes slidein-rtl {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Tables & Forms */
+html[dir="rtl"] thead th,
+body.rtl thead th {
+  text-align: right;
+}
+
+html[dir="rtl"] .cell-actions,
+body.rtl .cell-actions {
+  justify-content: flex-start;
+}
+
+html[dir="rtl"] .stat .ic,
+body.rtl .stat .ic {
+  right: auto;
+  left: 14px;
+}
+
+html[dir="rtl"] .palette-item .grp,
+body.rtl .palette-item .grp {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Login View in RTL */
+html[dir="rtl"] #loginView,
+body.rtl #loginView {
+  grid-template-columns: 1fr 1.05fr;
+}
+
+html[dir="rtl"] .login-art,
+body.rtl .login-art {
+  order: 2;
+  border-right: none;
+  border-left: 1px solid var(--line);
+}
+
+html[dir="rtl"] .login-form-wrap,
+body.rtl .login-form-wrap {
+  order: 1;
+}
+
+html[dir="rtl"] .login-brand,
+body.rtl .login-brand {
+  left: auto;
+  right: 48px;
+}
+
+html[dir="rtl"] .login-art .hero-txt,
+body.rtl .login-art .hero-txt {
+  left: auto;
+  right: 48px;
+}
+
+html[dir="rtl"] .login-lang-bar,
+body.rtl .login-lang-bar {
+  right: auto;
+  left: 20px;
+}
+
+/* Engine and Ext cards */
+html[dir="rtl"] .eng-card::before,
+body.rtl .eng-card::before {
+  left: auto;
+  right: 0;
+}
+
+html[dir="rtl"] .toggle.on::after,
+body.rtl .toggle.on::after {
+  transform: translateX(-18px);
+}
+
+/* Modals */
+html[dir="rtl"] .modal-f,
+body.rtl .modal-f {
+  justify-content: flex-start;
+}
+
+/* Datepicker RTL overrides */
+html[dir="rtl"] .rz-datepicker-popup,
+body.rtl .rz-datepicker-popup {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Mobile responsive RTL */
+@media (max-width: 760px) {
+  html[dir="rtl"] #appView,
+  body.rtl #appView {
+    grid-template-columns: 1fr;
+  }
+  html[dir="rtl"] .sidebar,
+  body.rtl .sidebar {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
+  }
+  html[dir="rtl"] .sidebar.open,
+  body.rtl .sidebar.open {
+    transform: none;
+  }
+}

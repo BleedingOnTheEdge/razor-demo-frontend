@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Razor Cloud — Workspace Control Plane</title>
+  <link rel="icon" href="assets/images/logo.png">
+  <link rel="stylesheet" href="assets/css/fonts.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
+  <link rel="stylesheet" href="assets/css/datepicker.css">
+</head>
+<body>
+
+<div id="appView">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <img src="assets/images/logo.png" alt="Razor Logo">
+      <div class="nm">RAZOR<small>CLOUD · v1.0.0 LTS</small></div>
+    </div>
+    <nav class="sb-nav" id="sbNav"></nav>
+    <div class="sb-foot">
+      <div class="conn"><span class="dot pulse"></span> <span id="sbConnText">Cloud link healthy</span></div>
+      <div style="margin-top:6px;font-family:var(--mono);font-size:10px">wss://cloud.razor.io/engine</div>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="tb-ic" id="menuBtn" onclick="RZ.toggleSidebar()" style="display:none"></button>
+      <div class="tb-title" id="tbTitle">Overview</div>
+      <div class="tb-spacer"></div>
+
+      <!-- Quick Command / Palette -->
+      <div class="tb-search" onclick="RZ.openPalette()">
+        <span id="tbSearchIc"></span>
+        <span id="tbSearchTxt">Quick command…</span>
+        <kbd>Ctrl K</kbd>
+      </div>
+
+      <!-- Connection Pill -->
+      <div class="tb-pill" id="tbConn">
+        <span class="dot pulse" style="color:var(--up)"></span>
+        <span id="tbConnLbl">Primary</span>
+        <span class="lat" id="tbLat">38ms</span>
+      </div>
+
+      <!-- Live Clock -->
+      <div class="tb-clock" id="tbClock">—</div>
+
+      <!-- Language Switcher Button -->
+      <button class="lang-switch" id="tbLangSwitch" onclick="window.i18n.toggleCulture()" title="Toggle Language (English / فارسی)">
+        <span id="langIc"></span> <span id="langText">EN</span>
+      </button>
+
+      <!-- Console Toggle Button -->
+      <button class="tb-ic" onclick="window.toggleConsole()" title="WebSocket console" id="tbConsoleBtn"></button>
+
+      <!-- Notifications Bell -->
+      <button class="tb-ic" onclick="RZ.toggleNotifs(event)" title="Notifications" id="tbBell">
+        <span class="badge-dot" id="bellDot"></span>
+      </button>
+
+      <!-- User Profile Dropdown -->
+      <div class="tb-user" onclick="RZ.toggleUser(event)">
+        <div class="avatar" id="tbAvatar">EV</div>
+        <div>
+          <div class="nm" id="tbName">—</div>
+          <div class="rl" id="tbRole">—</div>
+        </div>
+      </div>
+
+      <!-- Notifications Panel Popup -->
+      <div class="notif-panel" id="notifPanel">
+        <div class="nh">
+          <h4 id="npTitle">Notifications</h4>
+          <button class="btn xs ghost" onclick="RZ.markNotifs()" id="npMarkBtn">Mark read</button>
+        </div>
+        <div class="notif-list" id="notifList"></div>
+      </div>
+
+      <!-- User Menu Popup -->
+      <div class="user-menu" id="userMenu">
+        <div class="um-top">
+          <div class="nm" id="umName">—</div>
+          <div class="em" id="umEmail">—</div>
+        </div>
+        <div class="um-item" onclick="RZ.go('settings');RZ.closeMenus()">
+          <span id="umSettingsIc"></span> <span id="umSettingsTxt">Account &amp; subscription</span>
+        </div>
+        <div class="um-item" onclick="RZ.openPalette();RZ.closeMenus()">
+          <span id="umPalIc"></span> <span id="umPalTxt">Command palette</span>
+        </div>
+        <div class="um-item" onclick="window.location.href='admin.html';RZ.closeMenus()" id="umAdminLink" style="display:none">
+          <span id="umAdminIc"></span> <span>Admin Platform</span>
+        </div>
+        <div class="um-item danger" onclick="RZ.logout()">
+          <span id="umOutIc"></span> <span id="umOutTxt">Sign out</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT CONTAINER -->
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<!-- CONSOLE DRAWER -->
+<div class="console" id="console">
+  <div class="console-h">
+    <h3><span id="conIc"></span> <span id="conTitle">Engine ↔ Cloud Channel</span></h3>
+    <div class="flex aic gap12">
+      <span class="live"><span class="dot pulse"></span> LIVE</span>
+      <button class="tb-ic" style="width:30px;height:30px" onclick="window.clearConsole()" title="Clear" id="conClear"></button>
+      <button class="tb-ic" style="width:30px;height:30px" onclick="window.toggleConsole()" id="conClose"></button>
+    </div>
+  </div>
+  <div class="console-body" id="consoleBody"></div>
+</div>
+
+<!-- OVERLAYS -->
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+<div id="palette">
+  <div class="palette-box">
+    <div class="pi">
+      <span id="palIc"></span>
+      <input id="palInput" placeholder="Search pages, commands, actions…" oninput="RZ.palFilter(this.value)">
+    </div>
+    <div class="palette-list" id="palList"></div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="assets/js/core/icons.js"></script>
+<script src="assets/js/core/jalali.js"></script>
+<script src="assets/js/core/datepicker.js"></script>
+<script src="assets/js/i18n/en.js"></script>
+<script src="assets/js/i18n/fa.js"></script>
+<script src="assets/js/i18n/i18n.js"></script>
+<script src="assets/js/core/db.js"></script>
+<script src="assets/js/core/charts.js"></script>
+<script src="assets/js/core/ws-console.js"></script>
+
+<!-- Page Modules -->
+<script src="assets/js/pages/overview.js"></script>
+<script src="assets/js/pages/live.js"></script>
+<script src="assets/js/pages/backtest.js"></script>
+<script src="assets/js/pages/optimization.js"></script>
+<script src="assets/js/pages/scheduling.js"></script>
+<script src="assets/js/pages/extensions.js"></script>
+<script src="assets/js/pages/reports.js"></script>
+<script src="assets/js/pages/logs.js"></script>
+<script src="assets/js/pages/secrets.js"></script>
+<script src="assets/js/pages/instances.js"></script>
+<script src="assets/js/pages/settings.js"></script>
+<script src="assets/js/pages/admin.js"></script>
+
+<!-- App Controller -->
+<script src="assets/js/app.js"></script>
+
+<script>
+  function updateWorkspaceShellTranslations() {
+    const isFa = window.i18n && window.i18n.currentCulture === 'fa-IR';
+    const t = window.t;
+
+    const langBtn = document.getElementById('tbLangSwitch');
+    if (langBtn) {
+      document.getElementById('langIc').innerHTML = window.ic('globe');
+      document.getElementById('langText').textContent = isFa ? 'EN' : 'فا';
+    }
+
+    const sbConn = document.getElementById('sbConnText');
+    if (sbConn) sbConn.textContent = t('linkHealthy');
+
+    const searchTxt = document.getElementById('tbSearchTxt');
+    if (searchTxt) searchTxt.textContent = t('searchPlaceholder');
+
+    const npTitle = document.getElementById('npTitle');
+    if (npTitle) npTitle.textContent = t('notifications');
+
+    const npMark = document.getElementById('npMarkBtn');
+    if (npMark) npMark.textContent = t('markAllRead');
+
+    const umSettings = document.getElementById('umSettingsTxt');
+    if (umSettings) umSettings.textContent = t('accountAndSubscription');
+
+    const umPal = document.getElementById('umPalTxt');
+    if (umPal) umPal.textContent = t('commandPalette');
+
+    const umOut = document.getElementById('umOutTxt');
+    if (umOut) umOut.textContent = t('logout');
+
+    const conTitle = document.getElementById('conTitle');
+    if (conTitle) conTitle.textContent = t('engineCloudChannel');
+
+    // Admin link in user menu
+    const adminLink = document.getElementById('umAdminLink');
+    if (adminLink && window.S && window.S.role === 'admin') {
+      adminLink.style.display = 'flex';
+      document.getElementById('umAdminIc').innerHTML = window.ic('shield');
+    }
+  }
+
+  window.addEventListener('cultureChanged', updateWorkspaceShellTranslations);
+  document.addEventListener('DOMContentLoaded', () => {
+    updateWorkspaceShellTranslations();
+  });
+</script>
+</body>
+</html>
