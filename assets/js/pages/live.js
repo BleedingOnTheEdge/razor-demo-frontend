@@ -70,7 +70,9 @@
           ? `<button class="btn ghost" onclick="RZ.pauseLive()">${ic(L.paused ? 'play' : 'pause')} ${L.paused ? t('resume') : t('pause')}</button>
              <button class="btn primary" onclick="RZ.openInjectGenes()">${ic('dna')} ${t('injectGenes')}</button>
              <button class="btn ghost" onclick="RZ.syncNow()">${ic('refresh')} ${t('sync')}</button>
-             <button class="btn danger" onclick="RZ.stopLive()">${ic('stop')} ${t('stopLiveSession')}</button>`
+             <button class="btn ghost" onclick="RZ.emergencyStop()">${ic('stop')} ${t('emergencyStop', 'Emergency Stop (2001)')}</button>
+             <button class="btn danger" onclick="RZ.emergencyKillSwitch()">${ic('flame')} ${t('killSwitch', 'Kill Switch (2000)')}</button>
+             <button class="btn ghost danger" onclick="RZ.stopLive()">${ic('stop')} ${t('stopLiveSession')}</button>`
           : `<button class="btn primary" onclick="RZ.startLive()">${ic('play')} ${t('startLiveSession')}</button>`}
       </div>
     </div>`;
@@ -80,6 +82,7 @@
     }
 
     // Status bar
+    const curAcc = (DB.accounts || []).find(a => a.id === (L.accountId || 'acc-mt5-pro')) || (DB.accounts ? DB.accounts[0] : null);
     html += `<div class="card flat mb16">
       <div class="flex aic jcb" style="flex-wrap:wrap;gap:14px">
         <div class="flex aic gap12">
@@ -88,8 +91,15 @@
           <span class="chip">${ic('puzzle')} ${L.adapter}</span>
           <span class="chip">magic ${window.fmtN(L.magic)}</span>
           <span class="chip">guard ${window.fmtN(L.guard)}s</span>
+          ${curAcc ? `<span class="chip on">${ic('server')} ${curAcc.name} (${curAcc.currency})</span>` : ''}
         </div>
         <div class="flex aic gap12">
+          <div class="flex aic gap6">
+            <span class="muted" style="font-size:11.5px">${t('brokerAccount', 'Broker Account')}:</span>
+            <select id="lv-account-select" onchange="RZ.selectBrokerAccount(this.value)" style="background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:11.5px;color:var(--txt)">
+              ${(DB.accounts || []).map(a => `<option value="${a.id}" ${(L.accountId || 'acc-mt5-pro') === a.id ? 'selected' : ''}>${a.name}</option>`).join('')}
+            </select>
+          </div>
           <span class="chip ${L.behavior ? 'on' : ''}">${ic('db')} Behavior log ${L.behavior ? 'ON' : 'OFF'}</span>
           <button class="btn xs ghost" onclick="RZ.toggleBehavior()">${L.behavior ? 'Disable' : 'Enable'}</button>
         </div>
@@ -148,6 +158,13 @@
         <div class="kv"><span class="k">Last state sync</span><span class="v" id="lv-sync">${L.running ? window.ago(Date.now() - 12000) : '—'}</span></div>
         <div class="kv"><span class="k">Reconnect attempts</span><span class="v">0</span></div>
         <div class="kv"><span class="k">Order guard (monotonic)</span><span class="v">${window.fmtN(L.guard)}s</span></div>
+        <div class="flex aic jcb mt12 pt12" style="border-top:1px solid var(--line)">
+          <div>
+            <div style="font-weight:600;font-size:12px">${t('simulateReconnectionGap', 'Coverage Gap Simulation')}</div>
+            <div class="muted" style="font-size:11px">${t('gapPolicyHint', 'Injects a 45s coverage gap to test Decision 003-040 headline suppression.')}</div>
+          </div>
+          <button class="btn xs ghost" onclick="RZ.simulateGap()">${ic('branch')} ${t('simulateGap', 'Simulate Gap (003-020)')}</button>
+        </div>
         <div class="hint mt8">${ic('info')}<div>Live broker reconciles balance, positions and orders with the adapter independently of ticks; full reconciliation runs after every reconnect.</div></div>
       </div>
     </div>`;
@@ -279,6 +296,103 @@
         if (window.S.page === 'live') renderLive(document.getElementById('content'));
       });
     }, true, 'Stop session');
+  };
+
+  window.RZ.emergencyKillSwitch = function() {
+    const ic = window.ic;
+    const t = window.t;
+    const L = window.S.live;
+    window.modal(`<div class="modal-h">
+      <h3 style="color:var(--down)">${ic('flame')} ${t('killSwitchTitle', 'EMERGENCY KILL SWITCH (Command 2000)')}</h3>
+      <button class="x" onclick="closeModal()">${ic('x')}</button>
+    </div>
+    <div class="modal-b">
+      <div class="hint err mb16">
+        ${ic('alert')}
+        <div><b>CRITICAL SAFETY INTERVENTION:</b> This command immediately instructs the broker adapter to aggressively cancel ALL working orders and market-close ALL open positions. The trading core halts instantly.</div>
+      </div>
+      <p style="font-size:13px;line-height:1.5;color:var(--txt)">
+        Active Positions to Liquidate: <b>${L.positions ? L.positions.length : 0}</b><br>
+        Pending Orders to Cancel: <b>${window.DB.orders.length}</b><br>
+        Current Running Symbol: <b>${L.symbol}</b>
+      </p>
+      <div class="field mt12">
+        <label>Type <b>CONFIRM</b> to execute emergency kill switch:</label>
+        <input type="text" id="ks-confirm-input" placeholder="CONFIRM" style="font-family:var(--mono);text-transform:uppercase">
+      </div>
+    </div>
+    <div class="modal-f">
+      <button class="btn ghost" onclick="closeModal()">${t('cancel')}</button>
+      <button class="btn danger" id="ks-trigger-btn">${ic('flame')} Execute Kill Switch (2000)</button>
+    </div>`);
+
+    document.getElementById('ks-trigger-btn').onclick = () => {
+      const val = document.getElementById('ks-confirm-input').value.trim();
+      if (val !== 'CONFIRM') {
+        window.toast('Confirmation required', 'Please type CONFIRM to execute.', 'warn');
+        return;
+      }
+      window.closeModal();
+      window.sendCommand(2000, 'EmergencyKillSwitch', { reason: 'Operator manual override', flattenPositions: true }, () => {
+        window.S.live.running = false;
+        window.S.live.paused = false;
+        if (window.S._liveLoop) { clearInterval(window.S._liveLoop); window.S._liveLoop = null; }
+        window.S.live.positions = [];
+        window.DB.orders = [];
+        window.ws('Event', { Type: 'EmergencyKillSwitchExecuted', timestamp: Date.now() });
+        window.toast('Kill Switch Executed', 'All orders cancelled and positions flattened at broker.', 'err');
+        if (window.S.page === 'live') renderLive(document.getElementById('content'));
+      });
+    };
+  };
+
+  window.RZ.emergencyStop = function() {
+    window.confirm('Execute Emergency Stop (2001)?', 'This command cleanly stops the strategy execution loop without aggressive forced market liquidation. Useful during illiquid market phases.', () => {
+      window.sendCommand(2001, 'EmergencyStop', { graceful: true }, () => {
+        window.S.live.running = false;
+        window.S.live.paused = false;
+        if (window.S._liveLoop) { clearInterval(window.S._liveLoop); window.S._liveLoop = null; }
+        window.ws('Event', { Type: 'EmergencyStopExecuted', timestamp: Date.now() });
+        window.toast('Emergency Stop Executed', 'Live execution halted cleanly.', 'warn');
+        if (window.S.page === 'live') renderLive(document.getElementById('content'));
+      });
+    }, true, 'Emergency Stop');
+  };
+
+  window.RZ.simulateGap = function() {
+    const DB = window.DB;
+    const now = Date.now();
+    const gapRun = {
+      id: 'run-live-gapped',
+      name: 'EURUSD M1 Live Feed (Intervened)',
+      engine: 'PROD-FRANKFURT-01',
+      relation: 'Spliced',
+      continuity: 'Gapped',
+      coveragePct: 76.2,
+      gapDurationSec: 45,
+      headlineSuppressed: true,
+      rawSharpe: 2.14,
+      rawProfitFactor: 1.88,
+      rawNetProfit: 1420.50,
+      suppressionReason: 'Decision 003-040: Un-replayed coverage gap of 45s detected on socket reconnect.',
+      createdAt: now,
+      interventionsCount: 1,
+      seed: '0xDEADBEEFCAFE'
+    };
+    if (!DB.flowRuns) DB.flowRuns = [];
+    DB.flowRuns.unshift(gapRun);
+    window.saveDB();
+    window.ws('Event', { Type: 'RunGapDetected', runId: gapRun.id, gapDuration: 45, suppression: true });
+    window.toast('Reconnection Gap Injected', 'Run marked Gapped. Headline metrics suppressed per Decision 003-040. See Lineage tab.', 'warn');
+  };
+
+  window.RZ.selectBrokerAccount = function(accId) {
+    window.S.live.accountId = accId;
+    const acc = (window.DB.accounts || []).find(a => a.id === accId);
+    if (acc) {
+      window.toast('Broker Account Switched', `${acc.name} (${acc.broker})`, 'ok');
+      window.ws('Event', { Type: 'BrokerAccountChanged', accountId: accId, broker: acc.broker });
+    }
   };
 
   window.RZ.pauseLive = function() {

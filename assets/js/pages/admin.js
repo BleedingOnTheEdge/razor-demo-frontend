@@ -347,9 +347,11 @@
       <td><span class="chip">${l.type}</span></td>
       <td class="mono">${l.price}</td>
       <td class="mono">${window.fmtN(l.dl)}</td>
-      <td><span class="badge ${l.status === 'featured' ? 'vio' : l.status === 'approved' ? 'ok' : 'warn'}">${l.status}</span></td>
+      <td><span class="badge ${l.status === 'featured' ? 'vio' : l.status === 'approved' ? 'ok' : l.status === 'rejected' ? 'err' : 'warn'}">${l.status}</span></td>
       <td class="cell-actions">
-        ${l.status === 'pending' ? `<button class="btn xs ghost" onclick="RZ.approveList('${l.id}')">${ic('check')} Approve</button>` : ''}
+        <button class="btn xs ghost" onclick="RZ.inspectListManifest('${l.id}')">${ic('shield')} Manifest</button>
+        ${l.status === 'pending' || l.status === 'rejected' ? `<button class="btn xs ghost" onclick="RZ.approveList('${l.id}')">${ic('check')} Approve</button>` : ''}
+        ${l.status === 'pending' || l.status === 'approved' ? `<button class="btn xs danger" onclick="RZ.rejectList('${l.id}')">${ic('x')} Reject</button>` : ''}
         <button class="btn xs ghost" onclick="RZ.featureList('${l.id}')">${ic('award')} ${l.status === 'featured' ? 'Unfeature' : 'Feature'}</button>
       </td>
     </tr>`).join('');
@@ -365,13 +367,39 @@
     window.toast('Listing approved', l.name, 'ok');
   };
 
-  window.RZ.featureList = function(id) {
+  window.RZ.rejectList = function(id) {
     const l = window.DB.listings.find(x => x.id === id);
     if (!l) return;
-    l.status = l.status === 'featured' ? 'approved' : 'featured';
+    l.status = 'rejected';
+    window.DB.audit.unshift({ id: window.uid(), who: window.S.user.email, act: 'Rejected listing ' + l.name, tm: Date.now(), ip: '10.0.4.12' });
     window.saveDB();
     rAMList();
-    window.toast(l.name + (l.status === 'featured' ? ' featured' : ' unfeatured'), '', 'info');
+    window.toast('Listing rejected', l.name, 'warn');
+  };
+
+  window.RZ.inspectListManifest = function(id) {
+    const l = window.DB.listings.find(x => x.id === id);
+    if (!l) return;
+    const ic = window.ic;
+    window.modal(`<div class="modal-h">
+      <h3>${ic('shield')} Additive Safety &amp; Manifest Audit</h3>
+      <button class="x" onclick="closeModal()">${ic('x')}</button>
+    </div>
+    <div class="modal-b">
+      <div class="card flat mb16" style="background:var(--bg2)">
+        <div class="kv"><span class="k">Listing</span><span class="v"><b>${l.name}</b> (${l.type})</span></div>
+        <div class="kv"><span class="k">Publisher</span><span class="v mono">${l.author || 'Marketplace Developer'}</span></div>
+        <div class="kv"><span class="k">Status</span><span class="badge ${l.status === 'approved' ? 'ok' : 'warn'}">${l.status}</span></div>
+      </div>
+      <h4 style="font-size:12.5px;color:var(--mut);margin-bottom:8px">Declared Capabilities</h4>
+      <pre class="code-box" style="font-size:11px;padding:10px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);margin:0">{
+  "entry": "${l.name}.dll",
+  "permissions": ["MarketData:Read", "OrderExecution:Write"],
+  "assemblySignature": "Valid (Razor Authenticode)",
+  "isolatedALC": true
+}</pre>
+    </div>
+    <div class="modal-f"><button class="btn ghost" onclick="closeModal()">Close</button></div>`);
   };
 
   // 7. Feature Flag Registry
@@ -444,6 +472,87 @@
     }
   }
 
+  // 9. Support Tickets Triage (System Manager)
+  function rATickets(container) {
+    const DB = window.DB;
+    const t = window.t;
+    const ic = window.ic;
+    const tickets = (DB.tickets || []);
+    const openTk = tickets.filter(tk => tk.status === 'Open' || tk.status === 'InProgress').length;
+    const critTk = tickets.filter(tk => (tk.priority === 'Critical' || tk.priority === 'High') && tk.status !== 'Closed').length;
+
+    let html = `<div class="page-head">
+      <div>
+        <h1>${t('admin-tickets', 'Support & Incident Triage')}</h1>
+        <p>Operator dispatch plane — resolve platform tickets, triage critical incidents, and respond directly to tenants.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn primary" onclick="RZ.openNewTicket()">${ic('plus')} ${t('newTicket', 'New Ticket')}</button>
+      </div>
+    </div>`;
+
+    html += `<div class="grid g3 mb16">
+      <div class="stat"><div class="lbl">Open Queue</div><div class="val ${openTk > 0 ? 'up' : 'muted'}">${window.fmtN(openTk)}</div><div class="ic">${ic('ticket')}</div></div>
+      <div class="stat"><div class="lbl">Urgent Incidents</div><div class="val ${critTk > 0 ? 'down' : 'ok'}">${window.fmtN(critTk)}</div><div class="ic">${ic('alert')}</div></div>
+      <div class="stat"><div class="lbl">Total Resolved</div><div class="val ok">${window.fmtN(tickets.filter(tk => tk.status === 'Resolved').length)}</div><div class="ic">${ic('check')}</div></div>
+    </div>`;
+
+    html += `<div class="card">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:70px">ID</th>
+              <th>${t('title', 'Title')}</th>
+              <th>${t('targetRouting', 'Target')}</th>
+              <th>${t('priority', 'Priority')}</th>
+              <th>${t('author', 'Submitter')}</th>
+              <th>${t('status', 'Status')}</th>
+              <th>${t('created', 'Created')}</th>
+              <th style="text-align:right">${t('actions', 'Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tickets.length ? tickets.map(tk => {
+              const pColor = {
+                Critical: 'badge err',
+                High: 'badge warn',
+                Medium: 'badge vio',
+                Low: 'badge muted'
+              }[tk.priority] || 'badge muted';
+
+              const sColor = {
+                Open: 'badge warn',
+                InProgress: 'badge vio',
+                Resolved: 'badge ok',
+                Closed: 'badge muted'
+              }[tk.status] || 'badge muted';
+
+              return `<tr>
+                <td class="mono"><b>${tk.id}</b></td>
+                <td>
+                  <div style="font-weight:600;font-size:13px;cursor:pointer" onclick="RZ.openTicketDetail('${tk.id}')">${tk.title}</div>
+                  <div class="muted" style="font-size:11.5px;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${tk.desc || ''}</div>
+                </td>
+                <td><span class="chip on">${tk.targetType}</span></td>
+                <td><span class="${pColor}">${tk.priority}</span></td>
+                <td><div class="flex aic gap6"><div class="avatar" style="width:20px;height:20px;font-size:9px">${tk.authorName.split(' ').map(x => x[0]).join('')}</div><span>${tk.authorName}</span></div></td>
+                <td><span class="${sColor}"><span class="dot"></span>${tk.status}</span></td>
+                <td class="mono muted" style="font-size:11px">${window.ago(tk.createdAt)}</td>
+                <td class="cell-actions" style="text-align:right">
+                  <button class="btn xs ghost" onclick="RZ.openTicketDetail('${tk.id}')">${ic('chat')} Respond</button>
+                  <button class="btn xs ${tk.status === 'Resolved' ? 'ghost' : 'primary'}" onclick="RZ.toggleTicketStatus('${tk.id}');rATickets(document.getElementById('content'))">${tk.status === 'Resolved' ? 'Reopen' : 'Resolve'}</button>
+                </td>
+              </tr>`;
+            }).join('') : `<tr><td colspan="8" class="empty">No support tickets in queue.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+    container.innerHTML = html;
+  }
+
   if (!window.RENDER) window.RENDER = {};
   window.RENDER['admin-overview'] = () => { const c = document.getElementById('content'); if (c) rAOverview(c); };
   window.RENDER['admin-users'] = () => { const c = document.getElementById('content'); if (c) rAUsers(c); };
@@ -451,6 +560,7 @@
   window.RENDER['admin-engines'] = () => { const c = document.getElementById('content'); if (c) rAEngines(c); };
   window.RENDER['admin-broadcasts'] = () => { const c = document.getElementById('content'); if (c) rABroadcasts(c); };
   window.RENDER['admin-marketplace'] = () => { const c = document.getElementById('content'); if (c) rAMarket(c); };
+  window.RENDER['admin-tickets'] = () => { const c = document.getElementById('content'); if (c) rATickets(c); };
   window.RENDER['admin-features'] = () => { const c = document.getElementById('content'); if (c) rAFeatures(c); };
   window.RENDER['admin-audit'] = () => { const c = document.getElementById('content'); if (c) rAAudit(c); };
 })();

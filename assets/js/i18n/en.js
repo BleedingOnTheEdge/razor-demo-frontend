@@ -35,6 +35,10 @@ window.I18N_EN = {
   live: 'Live Trading',
   backtest: 'Backtesting',
   optimization: 'Optimization',
+  walkforward: 'Walk-Forward Analysis',
+  lineage: 'Run Lineage & Provenance',
+  community: 'Community Discussions',
+  tickets: 'Support & Incidents',
   scheduling: 'Scheduling & Cron',
   extensions: 'Extensions & Profiles',
   reports: 'Reports & Analytics',
@@ -50,6 +54,7 @@ window.I18N_EN = {
   'admin-engines': 'Global Engine Fleet',
   'admin-broadcasts': 'Broadcast Messages',
   'admin-marketplace': 'Marketplace Oversight',
+  'admin-tickets': 'Support & Incident Triage',
   'admin-features': 'Feature Flag Registry',
   'admin-audit': 'Audit Log',
 
@@ -177,5 +182,63 @@ window.I18N_EN = {
   cultureEn: 'English (US)',
   cultureFa: 'فارسی (FA)',
   timezoneUtc: 'UTC',
-  timezoneTehran: 'IRST (Tehran)'
+  timezoneTehran: 'IRST (Tehran)',
+
+  // Walk-Forward Analysis (007-090)
+  wfe: 'Walk-Forward Efficiency (WFE)',
+  robustness: 'Robustness Ratio',
+  insample: 'In-Sample (IS)',
+  outOfSample: 'Out-of-Sample (OOS)',
+  runWfa: 'Run Walk-Forward Analysis',
+  windowBreakdown: 'Window Breakdown',
+  injectLive: 'Inject to Live',
+  rollingWindows: 'Rolling Windows',
+  consistencyRatio: 'Consistency Ratio',
+
+  // Run Lineage & Provenance (003-040)
+  lineageDag: 'Lineage DAG & Provenance',
+  headlineSuppressed: 'Headline Figures Suppressed',
+  suppressionNotice: 'Un-replayed coverage gap detected. Headline metrics suppressed per Decision 003-040.',
+  reconcileGap: 'Reconcile Coverage Gap',
+  deterministicReplay: 'Deterministic Replay (Xorshift128+)',
+  relationAppended: 'Relation: Appended',
+  relationBranched: 'Relation: Branched',
+  relationSpliced: 'Relation: Spliced',
+  continuityContiguous: 'Continuity: Contiguous',
+  continuityGapped: 'Continuity: Gapped',
+
+  // Community Hub (CommunityThread.cs)
+  communityHub: 'Community Discussion Hub',
+  newThread: 'New Thread',
+  createDiscussionThread: 'Create Discussion Thread',
+  upvote: 'Upvote',
+  reply: 'Reply',
+  replies: 'Replies',
+  postReply: 'Post Response',
+  threadCategory: 'Category',
+
+  // Support & Incident Tickets (Ticket.cs)
+  supportTickets: 'Support & Incidents',
+  newTicket: 'New Ticket',
+  createSupportTicket: 'Open Support Ticket',
+  targetRouting: 'Target Routing',
+  systemManager: 'System Manager',
+  additiveDeveloper: 'Additive Developer',
+  incidentPriority: 'Priority',
+  ticketStatus: 'Status',
+  openTickets: 'Open Tickets',
+  criticalIncidents: 'Critical / High Incidents',
+  resolvedTickets: 'Resolved Tickets',
+  avgResponseTime: 'Avg Response Time',
+
+  // Live Trading Safety & Broker Accounts
+  killSwitch: 'Emergency Kill Switch (2000)',
+  emergencyStop: 'Emergency Stop (2001)',
+  simulateGap: 'Simulate Coverage Gap (003-020)',
+  brokerAccount: 'Broker Account',
+  brokerAccounts: 'Broker & Trading Accounts',
+  brokerAccountsSub: 'Configured trading gateways with unified routing and balance aggregation',
+  connectBroker: 'Connect Broker',
+  publishAdditive: 'Publish Additive',
+  details: 'Details'
 };

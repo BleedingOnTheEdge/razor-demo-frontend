@@ -35,6 +35,10 @@ window.I18N_FA = {
   live: 'معاملات زنده',
   backtest: 'بک‌تستینگ و شبیه‌سازی',
   optimization: 'بهینه‌سازی ژنتیک',
+  walkforward: 'تحلیل روبه‌جلو',
+  lineage: 'تبارشناسی و اصالت اجرا',
+  community: 'گفتگوهای جامعه کاربری',
+  tickets: 'پشتیبانی و تیکت‌ها',
   scheduling: 'زمان‌بندی و کران‌جاب',
   extensions: 'افزونه‌ها و پروفایل‌ها',
   reports: 'گزارش‌ها و تحلیل‌ها',
@@ -50,6 +54,7 @@ window.I18N_FA = {
   'admin-engines': 'ناوگان سراسری موتورها',
   'admin-broadcasts': 'پیام‌های همگانی',
   'admin-marketplace': 'نظارت بر بازارچه',
+  'admin-tickets': 'تریاژ و رسیدگی به تیکت‌ها',
   'admin-features': 'رجیستری پرچم‌های ویژگی',
   'admin-audit': 'گزارش حسابرسی و وقایع',
 
@@ -177,5 +182,63 @@ window.I18N_FA = {
   cultureEn: 'English (US)',
   cultureFa: 'فارسی (FA)',
   timezoneUtc: 'UTC',
-  timezoneTehran: 'IRST (تهران)'
+  timezoneTehran: 'IRST (تهران)',
+
+  // Walk-Forward Analysis (007-090)
+  wfe: 'کارایی روبه‌جلو (WFE)',
+  robustness: 'شاخص پایداری و تاب‌آوری',
+  insample: 'درون-نمونه (IS)',
+  outOfSample: 'برون-نمونه (OOS)',
+  runWfa: 'اجرای تحلیل روبه‌جلو',
+  windowBreakdown: 'تفکیک پنجره‌های تحلیل',
+  injectLive: 'تزریق ژنوم به معاملات زنده',
+  rollingWindows: 'پنجره‌های غلتان',
+  consistencyRatio: 'نسبت ثبات عملکرد',
+
+  // Run Lineage & Provenance (003-040)
+  lineageDag: 'گراف جهت‌دار تبارشناسی و اصالت',
+  headlineSuppressed: 'تعلیق شاخص‌های کلیدی عملکرد',
+  suppressionNotice: 'گپ پوشش بازپخش‌نشده شناسایی شد. شاخص‌های اصلی طبق مصوبه 003-040 تعلیق شده‌اند.',
+  reconcileGap: 'رفع و بازپخش گپ پوشش',
+  deterministicReplay: 'بازپخش قطعی (Xorshift128+)',
+  relationAppended: 'رابطه: پیوست‌شده',
+  relationBranched: 'رابطه: شاخه‌بندی‌شده',
+  relationSpliced: 'رابطه: الحاق‌شده',
+  continuityContiguous: 'پیوستگی: پیوسته',
+  continuityGapped: 'پیوستگی: دارای گپ',
+
+  // Community Hub (CommunityThread.cs)
+  communityHub: 'تالار گفتگوی کاربری و ایده‌ها',
+  newThread: 'موضوع جدید',
+  createDiscussionThread: 'ایجاد گفتگوی جدید',
+  upvote: 'رأی مثبت',
+  reply: 'پاسخ',
+  replies: 'پاسخ‌ها',
+  postReply: 'ثبت پاسخ',
+  threadCategory: 'دسته‌بندی',
+
+  // Support & Incident Tickets (Ticket.cs)
+  supportTickets: 'پشتیبانی و تیکت‌ها',
+  newTicket: 'تیکت جدید',
+  createSupportTicket: 'ثبت تیکت پشتیبانی جدید',
+  targetRouting: 'مقصد ارجاع',
+  systemManager: 'مدیر سامانه (هسته کلود)',
+  additiveDeveloper: 'توسعه‌دهنده افزونه (مارکت‌پلیس)',
+  incidentPriority: 'اولویت',
+  ticketStatus: 'وضعیت',
+  openTickets: 'تیکت‌های باز',
+  criticalIncidents: 'رویدادهای بحرانی / بالا',
+  resolvedTickets: 'تیکت‌های حل‌شده',
+  avgResponseTime: 'میانگین زمان پاسخ',
+
+  // Live Trading Safety & Broker Accounts
+  killSwitch: 'کلید قطع اضطراری (2000)',
+  emergencyStop: 'توقف اضطراری (2001)',
+  simulateGap: 'شبیه‌سازی گپ پوشش (003-020)',
+  brokerAccount: 'حساب بروکر',
+  brokerAccounts: 'حساب‌های بروکر و معاملاتی',
+  brokerAccountsSub: 'درگاه‌های معاملاتی پیکربندی‌شده با مسیردهی یکپارچه و تجمیع موجودی',
+  connectBroker: 'اتصال بروکر جدید',
+  publishAdditive: 'انتشار افزونه',
+  details: 'جزئیات'
 };
